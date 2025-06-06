@@ -1,0 +1,1 @@
+Wersja gotowa do przesłania przez Render.com jako Static Site lub Web Service.

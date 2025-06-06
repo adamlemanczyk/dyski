@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inwentaryzacja Dysków</title>
+</head>
+<body>
+  <h1>Logowanie Supabase + Dodaj zdjęcie dysku</h1>
+  <div id="auth"></div>
+  <div id="app" style="display:none;">
+    <p>Jesteś zalogowany!</p>
+    <input type="file" id="fileInput" accept="image/*" />
+    <ul id="diskInfoList"></ul>
+    <button onclick="logout()">Wyloguj</button>
+  </div>
+  <script src="main.js"></script>
+</body>
+</html>
