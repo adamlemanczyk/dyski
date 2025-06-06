@@ -1,19 +1,63 @@
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Inwentaryzacja Dysków</title>
+  <title>Logowanie Supabase + Dodaj zdjęcie dysku</title>
 </head>
 <body>
   <h1>Logowanie Supabase + Dodaj zdjęcie dysku</h1>
-  <div id="auth"></div>
-  <div id="app" style="display:none;">
-    <p>Jesteś zalogowany!</p>
+  <div id="auth-container"></div>
+  <div id="upload-container" style="display:none;">
+    <h2>Dodaj zdjęcie dysku</h2>
     <input type="file" id="fileInput" accept="image/*" />
-    <ul id="diskInfoList"></ul>
-    <button onclick="logout()">Wyloguj</button>
+    <button onclick="upload()">Wyślij</button>
+    <p id="message"></p>
   </div>
-  <script src="main.js"></script>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    const supabase = createClient(
+      "https://spulxfwbnljpahuwpmze.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    );
+
+    const authContainer = document.getElementById("auth-container");
+    const uploadContainer = document.getElementById("upload-container");
+    const message = document.getElementById("message");
+
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        authContainer.style.display = "none";
+        uploadContainer.style.display = "block";
+      } else {
+        authContainer.innerHTML = `
+          <input type="email" id="email" placeholder="Email" />
+          <input type="password" id="password" placeholder="Hasło" />
+          <button onclick="login()">Zaloguj / Zarejestruj</button>
+        `;
+      }
+    });
+
+    window.login = async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      await supabase.auth.signUp({ email, password });
+      await supabase.auth.signInWithPassword({ email, password });
+    };
+
+    window.upload = async () => {
+      const file = document.getElementById("fileInput").files[0];
+      if (!file) return (message.textContent = "Wybierz plik.");
+      const user = (await supabase.auth.getUser()).data.user;
+      const { error } = await supabase.storage.from("dyski").upload(`${user.id}/${file.name}`, file);
+      if (error) {
+        message.textContent = "Błąd: " + error.message;
+      } else {
+        message.textContent = "Zdjęcie zapisane.";
+      }
+    };
+  </script>
 </body>
 </html>
